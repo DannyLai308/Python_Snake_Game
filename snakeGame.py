@@ -53,12 +53,23 @@ def next_turn(snake, food):
     square = canvas.create_rectangle(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=SNAKE_COLOR)
     snake.squares.insert(0, square) #Update list of squares for snake
 
-    # Delete previous coordinates of snake
-    del snake.coordinates[-1]
-    canvas.delete(snake.squares[-1])
+    # Check for foods
+    if x == food.coordinates[0] and y == food.coordinates[1]:
+        global score
+        score += 1
 
-    # Delete previous square of snake
-    del snake.squares[-1]
+        label.config(text="Score:{}".format(score))
+
+        #Delete and create new food
+        canvas.delete("food")
+        food = Food()
+    else:
+        # Delete previous coordinates of snake
+        del snake.coordinates[-1]
+        canvas.delete(snake.squares[-1])
+
+        # Delete previous square of snake
+        del snake.squares[-1]
 
     window.after(SPEED, next_turn, snake, food)
 
