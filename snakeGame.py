@@ -6,7 +6,7 @@ from turtle import window_height, window_width
 # Game Constants
 GAME_WIDTH = 700
 GAME_HEIGHT = 700
-SPEED = 50
+SPEED = 70
 SPACE_SIZE = 50
 BODY_PARTS = 3
 SNAKE_COLOR = "#0000FF"
@@ -28,6 +28,7 @@ class Snake:
             square = canvas.create_rectangle(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=SNAKE_COLOR, tag="snake")
             self.squares.append(square)
 
+
 class Food:
     def __init__(self):
         x = random.randint(0, (GAME_WIDTH/SPACE_SIZE)-1) * SPACE_SIZE
@@ -35,6 +36,15 @@ class Food:
         self.coordinates = [x, y]
         canvas.create_oval(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=FOOD_COLOR, tag="food")
 
+
+# Function: 
+#               next_return(snake, food)
+# Parameters: 
+#               Snake snake, Food food
+# Description: 
+#               Calculates snake movements based on x, y coordinates of the snake's head 
+# (snake's body is resembled as squares) on the canvas. Delete / Insert body parts for snake 
+# as squares and terminate the game when a collision is detected
 
 def next_turn(snake, food):
     x, y = snake.coordinates[0]
@@ -70,9 +80,20 @@ def next_turn(snake, food):
 
         # Delete previous square of snake
         del snake.squares[-1]
+    
+    # Check for off screen / edge collision
+    if check_collisions(snake):
+        game_over()
+    else:
+        window.after(SPEED, next_turn, snake, food)
 
-    window.after(SPEED, next_turn, snake, food)
 
+# Function: 
+#               change_direction(new_direction)
+# Parameters: 
+#               new_direction
+# Description: 
+#               Use keybinds to control snake's movement directions
 
 def change_direction(new_direction):
     global direction #old direction
@@ -90,11 +111,41 @@ def change_direction(new_direction):
         if direction != 'up':
             direction = new_direction
 
-def check_collisions():
-    pass
+
+# Function: 
+#               check_collisions(snake):
+# Parameters: 
+#               Snake snake
+# Description: 
+#               Check for collision with any body parts or if snake is off screen
+
+def check_collisions(snake):
+    x, y = snake.coordinates[0]
+
+    if x < 0 or x >= GAME_WIDTH:
+        return True
+    elif y < 0 or y >= GAME_HEIGHT:
+        return True
+    
+    # Check for body collision
+    for body_part in snake.coordinates[1:]:
+        if x == body_part[0] and y == body_part[1]:
+            return True
+    
+    return False
+
+
+# Function: 
+#              game_over()
+# Parameters: 
+#               none
+# Description: 
+#               Delete snake and food from canvas and display game over text
 
 def game_over():
-    pass
+    canvas.delete(ALL)
+    canvas.create_text(canvas.winfo_width()/2, canvas.winfo_height()/2, font=('consolas', 50), 
+                        text="YOU CRASHED!\n"+"GAME OVER", fill="red", tag="game_over")
 
 # Game setup initial phase
 window = Tk()
